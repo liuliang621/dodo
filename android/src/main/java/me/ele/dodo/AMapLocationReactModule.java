@@ -5,6 +5,8 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationClientOption.AMapLocationMode;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.location.DPoint;
+import com.amap.api.location.CoordinateConverter;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -12,6 +14,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
@@ -27,6 +30,11 @@ public class AMapLocationReactModule extends ReactContextBaseJavaModule implemen
     private final ReactApplicationContext mReactContext;
     // 是否显示详细信息
     private boolean needDetail = false;
+    
+    // ll 声明两点距离计算对象
+	private DPoint mDPointStart;
+	private DPoint mDPointEnd;
+	private CoordinateConverter mCoordinateConverter;
 
     private void sendEvent(String eventName,
                            @Nullable WritableMap params) {
@@ -143,6 +151,21 @@ public class AMapLocationReactModule extends ReactContextBaseJavaModule implemen
     public void destroyLocation() {
         if (this.mLocationClient != null) {
             this.mLocationClient.onDestroy();
+        }
+    }
+    
+    @ReactMethod
+    public void calculateLineDistance(double startLng, double startLat, double endLng, double endLat, Callback dataCallBack) {
+		mDPointStart = new DPoint();
+		mDPointEnd = new DPoint();
+		mCoordinateConverter = new CoordinateConverter(mReactContext);
+        if (this.mCoordinateConverter != null) {
+			mDPointStart.setLongitude(startLng);
+			mDPointStart.setLatitude(startLat);
+			mDPointEnd.setLongitude(endLng);
+			mDPointEnd.setLatitude(endLat);
+            float distance = mCoordinateConverter.calculateLineDistance(mDPointStart, mDPointEnd);
+			dataCallBack.invoke(distance);
         }
     }
 
