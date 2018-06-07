@@ -26,5 +26,8 @@ module.exports = {
             handler
         );
         return listener;
-    }
+    },
+    calculateLineDistance: function (startLng, startLat, endLng, endLat, Callback) {
+		EleRNLocation.calculateLineDistance(startLng, startLat, endLng, endLat, Callback);
+	}
 };
